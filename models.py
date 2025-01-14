@@ -6,13 +6,22 @@ db = create_engine("sqlite:///electronics-store.db")
 
 Base = declarative_base()
 
+class StockQuantityError(Exception):
+    """
+    High exception when quantity sold exceeds inventory
+    """
+    def __init__(self, name, quantity_sold, stock_quantity):
+        super().__init__(f"Não é possível vender {quantity_sold} unidades do item [{name}] pois excede a quantidade em estoque [{stock_quantity}]")
+        self.quantity_sold = quantity_sold
+        self.stock_quantity = stock_quantity
+
 class Product(Base):
-    __tablename__ = "product"
+    __tablename__ = "products"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True)
     price = Column(Float, default=0, nullable=False)
     stock_quantity = Column(Integer, default=0, nullable=False)
-    sales = relationship("ProductSale", back_populates="product")
+    sales = relationship("Sale", back_populates="product")
 
     def __init__(self, name, price, stock_quantity):
         self.name = name
@@ -21,20 +30,20 @@ class Product(Base):
 
 
 class Sale(Base):
-    __tablename__ = "sale"
+    __tablename__ = "sales"
     id = Column(Integer, primary_key=True)
     customer = Column(String, nullable=False)
-    sale_date = Column(DateTime, nullable=True)
-    products = relationship("ProductSale", back_populates="sale")
-
-
-class ProductSale(Base):
-    __tablename__ = "product_sale"
-    id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey("product.id"), nullable=False)
-    sale_id = Column(Integer, ForeignKey("sale.id"), nullable=False)
+    sale_date = Column(DateTime, nullable=False)
+    quantity_sold = Column(Integer, nullable=False)
+    total = Column(Float, nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     product = relationship("Product", back_populates="sales")
-    sale = relationship("Sale", back_populates="products")
 
+    def __init__(self, customer, sale_date, quantity_sold, total, product_id):
+        self.customer = customer
+        self.sale_date = sale_date
+        self.quantity_sold = quantity_sold
+        self.total = total
+        self.product_id = product_id
 
 Base.metadata.create_all(db)
