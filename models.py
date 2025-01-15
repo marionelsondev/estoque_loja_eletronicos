@@ -6,15 +6,6 @@ db = create_engine("sqlite:///electronics-store.db")
 
 Base = declarative_base()
 
-class StockQuantityError(Exception):
-    """
-    High exception when quantity sold exceeds inventory
-    """
-    def __init__(self, name, quantity_sold, stock_quantity):
-        super().__init__(f"Não é possível vender {quantity_sold} unidades do item [{name}] pois excede a quantidade em estoque [{stock_quantity}]")
-        self.quantity_sold = quantity_sold
-        self.stock_quantity = stock_quantity
-
 class Product(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True)

@@ -1,19 +1,21 @@
+from time import sleep
 from crud import system_actions
 
 
 while True:
+    sleep(1)
     print(
-    """
-    SISTEMA - LOJA DE ELETRÔNICOS
-    -----------------------------
-    [1] - Adicionar produto
-    [2] - Atualizar produto
-    [3] - Excluir produto
-    [4] - Visualizar estoque
-    [5] - Realizar venda
-    [6] - Visualizar vendas
-    [7] - Sair do sistema
-    """
+"""
+SISTEMA - LOJA DE ELETRÔNICOS
+-----------------------------
+[1] - Adicionar produto
+[2] - Atualizar produto
+[3] - Excluir produto
+[4] - Visualizar estoque
+[5] - Realizar venda
+[6] - Visualizar vendas
+[7] - Sair do sistema
+"""
     )
 
     while True:

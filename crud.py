@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from models import Product, Sale, StockQuantityError, db
+from models import Product, Sale, db
 from datetime import datetime
 
 Session = sessionmaker(bind=db)
@@ -16,15 +16,16 @@ def register_product():
 
 def list_stock():
     products = session.query(Product).all()
-    print(86*"-")
+    print(89*"-")
     print(f"{"CÓDIGO":^5} | {"NOME":^40} | R$:{"PREÇO":^10} | {"QUANTIDADE EM ESTOQUE":^10}")
-    print(86*"-")
+    print(89*"-")
     for product in products:
-        print(f"{product.id:<6} | {product.name:<40} | {product.price:<10.2f} | {product.stock_quantity:<10}")
+        print(f"{product.id:<6} | {product.name:<40} | {product.price:<13.2f} | {product.stock_quantity:<10}")
 
 def update_product():
-    search_name = input("Digite o nome do produto que deseja atualizar: ").upper()
-    product = session.query(Product).filter(Product.name==search_name).first()
+    list_stock()
+    search_id = input("Digite o código do produto que deseja atualizar: ").upper()
+    product = session.query(Product).filter(Product.id==search_id).first()
     product.name = input("Digite um novo nome para o produto: ").upper()
     product.price = float(input("Digite um novo preço para o produto: "))
     product.stock_quantity = int(input("Digite a nova quantidade em estoque do produto: "))
@@ -50,28 +51,33 @@ def sell():
     product = session.query(Product).filter(Product.id==product_id).first()
     sale_date = datetime.now()
     while True:
-        try:
-            quantity_sold = int(input(f"Digite a quantidade que deseja vender do produto [{product.name}]: "))
+        quantity_sold = int(input(f"Digite a quantidade que deseja vender do produto [{product.name}]: "))
 
-            if quantity_sold <= 0:
-                raise ValueError("A quantidade vendida deve ser maior que zero.")
-            
-            if quantity_sold > product.stock_quantity:
-                raise StockQuantityError(quantity_sold, product.stock_quantity)
-            
+        if quantity_sold <= product.stock_quantity:
             quantity_sold = quantity_sold
             break
-        except (ValueError, StockQuantityError) as e:
-            print(e)
+
+        if quantity_sold <= 0:
+            print("A quantidade vendida deve ser maior que zero.")
+        
+        if quantity_sold > product.stock_quantity:
+            print("A quantidade vendida não pode ser maior que a quantidade em estoque.")
+
     total = quantity_sold * product.price
     product.stock_quantity = product.stock_quantity - quantity_sold
     sale = Sale(customer, sale_date, quantity_sold, total, product.id)
     session.add(sale, product)
     session.commit()
+    print("Venda realizada com sucesso!!!")
 
 
 def list_sales():
-    pass
+    sales = session.query(Sale).all()
+    print(129*"-")
+    print(f"{"ID":^5} | {"CLIENTE":^40} | {"DT_VENDA":^40} | {"QTD_VENDIDA":^5} | {"TOTAL (R$)":^10} | {"PRODUTO":^5}")
+    print(129*"-")
+    for sale in sales:
+        print(f"{sale.id:<5} | {sale.customer:<40} | {sale.sale_date.strftime("%d/%m/%Y %H:%M"):<40} | {sale.quantity_sold:<11} | {sale.total:<10.2f} | {sale.product_id:<5}")
 
 def system_actions(option):
     if option == 1:
@@ -84,3 +90,5 @@ def system_actions(option):
         list_stock()
     elif option == 5:
         sell()
+    else:
+        list_sales()
