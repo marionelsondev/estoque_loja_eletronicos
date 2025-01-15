@@ -14,7 +14,7 @@
     git clone https://github.com/marionelsondev/estoque_loja_eletronicos.git
     ```
 
-2. **Crie um ambiente virtual para isolar as dependências:**
+2. **Crie um ambiente virtual para isolar as dependências (dentro da pasta clonada do projeto):**
     ```bash
     python -m venv venv
     ```
